@@ -1,0 +1,215 @@
+import { AbiCoder, hexlify } from "ethers";
+import { AddressesIMT, PROOF_SYSTEM_CONSTANTS } from "microch";
+import { ENTRYPOINT_ADDRESS_V07,UserOperation,bundlerActions, getAccountNonce, getUserOperationHash, signUserOperationHashWithECDSA } from "permissionless";
+import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico";
+import { Address, Hex, createClient, createPublicClient, encodeFunctionData, http, parseEther } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { polygonAmoy } from "viem/chains";
+// @ts-ignore
+import * as snarkjs from 'snarkjs';
+
+
+export async function sendOneUserOperationWithPaymaster(to: string, amount: string, accountIdentifier: string, sessionOwnerPrivateKey: string, sessionAllowedSmartContracts: string[], sessionAllowedToAddresses: string[]){
+    
+    /*********************************** User operation preparation ***************************************** */  
+
+    const publicClient = createPublicClient({
+        transport: http("https://rpc-amoy.polygon.technology/"),
+        chain: polygonAmoy,
+    })
+    
+    const chain = "polygon-amoy";
+    const apiKey = process.env.NEXT_PUBLIC_PIMLICO_API_KEY;
+    const endpointUrl = `https://api.pimlico.io/v2/${chain}/rpc?apikey=${apiKey}`
+    
+    const bundlerClient = createClient({
+        transport: http(endpointUrl),
+        chain: polygonAmoy,
+    })
+        .extend(bundlerActions(ENTRYPOINT_ADDRESS_V07))
+        .extend(pimlicoBundlerActions(ENTRYPOINT_ADDRESS_V07))
+    
+    const paymasterClient = createClient({
+        transport: http(endpointUrl),
+        chain: polygonAmoy,
+    }).extend(pimlicoPaymasterActions(ENTRYPOINT_ADDRESS_V07))
+    
+    
+    // Convert currency unit from ether to wei
+    const parsedAmountValue = parseEther(amount) //function paramter
+    const data = "0x" 
+
+    const callData = encodeFunctionData({
+        abi: [
+            {
+                inputs: [
+                    { name: "dest", type: "address" },
+                    { name: "value", type: "uint256" },
+                    { name: "func", type: "bytes" }
+                ],
+                name: "execute",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function"
+            }
+        ],
+        args: [to as `0x${string}`, parsedAmountValue, data]
+      })
+      
+    const sessionOwner = privateKeyToAccount(sessionOwnerPrivateKey as Hex)
+    const nonce = await getAccountNonce(publicClient, {
+        sender: accountIdentifier as Address,
+        entryPoint: ENTRYPOINT_ADDRESS_V07,
+    })
+      const gasPrice = await bundlerClient.getUserOperationGasPrice()
+
+      const userOperation = {
+        sender: accountIdentifier,
+        nonce: nonce,
+        callData: callData,
+        maxFeePerGas: gasPrice.fast.maxFeePerGas,
+        maxPriorityFeePerGas: gasPrice.fast.maxPriorityFeePerGas,
+        verificationGasLimit:BigInt(280000),
+        // dummy signature
+        signature:
+          "0x150368ca9c94bbc38d4b23acf729d56d506d02c78f0acb2d7a2e17ec1e805eb90c21b496d5454316536ca5b3b8e96fce66828e5ebf997335ef4e4e8a7346c79d1c1be8d8725c70af471c9e8bffce0d172de36b6539481896cd31ddc837ebceca152a02be87fcc24f007b57664dcb084630007a67958d931d4ddd1485875ca69e09c07946a49194771c509a1665607fcb6ffd08de7742acb75d06542d7a363dcf1b43dd9647ad985ea6f3e9e96db31c08df531aa637b034c2f27b5a9ee1549ac8263f853d2ba00b458813b6150243fd72c6daac4341e700a854ba2c085cbd4ebd03b7673ef8b38234a31cc60c8fdfa0709de4802ee9642e3ebc367e8d30e998890c4a80cc0f06049d3dfba1f5047733e6e37de072870b3d949a9a8508c019602f00000000000000000000000022003c09cffb6d4e4964c4d967c078c228bd7cf3000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000414fe02330134e5c8cca47a8ab3ea4b38a5005df04ba243cd6b33d989abca6587233c756f1fb82513f2731d10518f83e79e93147bfa50bd7424ff404a168215a9d1c00000000000000000000000000000000000000000000000000000000000000" as Hex
+    }
+   
+    const sponsorUserOperationResult = await paymasterClient.sponsorUserOperation({
+        userOperation,
+    })
+    
+    const sponsoredUserOperation: UserOperation<"v0.7"> = {
+        ...userOperation,
+        ...sponsorUserOperationResult,
+    }
+
+    console.log("Received paymaster sponsor result:", sponsorUserOperationResult)
+
+
+    let userOpHash = getUserOperationHash({
+        userOperation: sponsoredUserOperation,
+        chainId: polygonAmoy.id,
+        entryPoint: ENTRYPOINT_ADDRESS_V07
+    })
+    let op = BigInt(hexlify(userOpHash))
+    op %= PROOF_SYSTEM_CONSTANTS.SNARK_SCALAR_FIELD
+
+
+    /*********************************** User operation signature and proof generation ***************************************** */ 
+    
+    const transaction= {
+        dest: BigInt(to),
+        value: amount,
+        functionSelector: BigInt("0x0"),
+        Erc20TransferTo: BigInt("0x0")
+    }
+
+    const transactions = [
+        transaction
+    ]
+
+    const sessionAllowedSmartContractTree: AddressesIMT = new AddressesIMT(17, 0, 2); 
+    const sessionAllowedToAddressesTree= new AddressesIMT(17, 0, 2); 
+    
+    for (let address of sessionAllowedSmartContracts) {
+        await sessionAllowedSmartContractTree.addAddress(BigInt(address));
+    }
+
+    for (let address of sessionAllowedToAddresses) {
+        await sessionAllowedToAddressesTree.addAddress(BigInt(address));
+    }
+    const circuitInputs = {
+        accountIdentifier: BigInt(accountIdentifier),
+        sessionKeyIdentifier: BigInt(sessionOwner.address),
+        allowedSmartContractTreeRoot: sessionAllowedSmartContractTree.root,
+        allowedToTreeRoot: sessionAllowedToAddressesTree.root,
+        op: op,
+        dest:[] as bigint[],
+        value: [] as bigint[],
+        functionSelector: [] as bigint[], 
+        erc20TransferTo:[] as bigint[], 
+        EthToSiblings: [] as number[][], 
+        EthToPathIndices: [] as number[][],     
+        allowedSmartContractCallSiblings: [] as number[][],
+        allowedSmartContractCallPathIndices: [] as number[][],
+        Erc20ToAddressSiblings: [] as number[][],
+        Erc20ToAddressPathIndices: [] as number[][] 
+    }
+
+    for(let tx of transactions){
+    
+        circuitInputs.dest.push(tx.dest)
+        circuitInputs.value.push(parseEther(tx.value))
+        circuitInputs.functionSelector.push(tx.functionSelector)
+        circuitInputs.erc20TransferTo.push(tx.Erc20TransferTo)
+        if(tx.value != "0"){
+          const index= await sessionAllowedToAddressesTree.indexOf(BigInt(tx.dest));
+          const allowedToProof= await sessionAllowedToAddressesTree.generateMerkleProof(index);
+          circuitInputs.EthToSiblings.push(allowedToProof.siblings)
+          circuitInputs.EthToPathIndices.push(allowedToProof.pathIndices)
+        }else{
+          //static value
+          circuitInputs.EthToSiblings.push([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+          circuitInputs.EthToPathIndices.push([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        }
+    
+        if(tx.functionSelector != BigInt("0x0")){
+          const index= await sessionAllowedSmartContractTree.indexOf(BigInt(tx.dest));
+          const allowedSmartContractProof= await sessionAllowedSmartContractTree.generateMerkleProof(index);
+          circuitInputs.allowedSmartContractCallSiblings.push(allowedSmartContractProof.siblings)
+          circuitInputs.allowedSmartContractCallPathIndices.push(allowedSmartContractProof.pathIndices)
+        }else{
+          //static value
+          circuitInputs.allowedSmartContractCallSiblings.push([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+          circuitInputs.allowedSmartContractCallPathIndices.push([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        }
+        if(tx.Erc20TransferTo != BigInt("0x0")){
+          const index= await sessionAllowedToAddressesTree.indexOf(BigInt(tx.Erc20TransferTo));
+          const allowedSmartContractProof= await sessionAllowedToAddressesTree.generateMerkleProof(index);
+          circuitInputs.Erc20ToAddressSiblings.push(allowedSmartContractProof.siblings)
+          circuitInputs.Erc20ToAddressPathIndices.push(allowedSmartContractProof.pathIndices)
+        }else{
+          //static value
+          circuitInputs.Erc20ToAddressSiblings.push([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+          circuitInputs.Erc20ToAddressPathIndices.push([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        }
+      }
+
+
+      const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInputs, "zk_session_key_one_transaction_validation.wasm", "zk_session_key_one_transaction_validation_0001.zkey");
+
+      const signature = await signUserOperationHashWithECDSA({
+        account: sessionOwner,
+        userOperation: sponsoredUserOperation,
+        chainId: polygonAmoy.id,
+        entryPoint: ENTRYPOINT_ADDRESS_V07,
+    })
+
+    const defaultEncode= AbiCoder.defaultAbiCoder();
+    const finalSignature = defaultEncode.encode(
+          ["uint256","uint256","uint256","uint256","uint256","uint256","uint256","uint256","uint256","address","bytes"],
+          [proof.pi_a[0], proof.pi_a[1], proof.pi_b[0][1], proof.pi_b[0][0], proof.pi_b[1][1], proof.pi_b[1][0], proof.pi_c[0], proof.pi_c[1], publicSignals[1], sessionOwner.address, signature]);
+    sponsoredUserOperation.signature= finalSignature as `0x${string}`;
+
+
+/*********************************** User operation submission ************************************************************* */
+
+    const userOperationHash = await bundlerClient.sendUserOperation({
+        userOperation: sponsoredUserOperation,
+    })
+
+    console.log("Received User Operation hash:", userOperationHash)
+
+    console.log("Querying for receipts...")
+    const receipt = await bundlerClient.waitForUserOperationReceipt({
+        hash: userOperationHash,
+    })
+    const txHash = receipt.receipt.transactionHash
+
+    console.log(`UserOperation included: https://amoy.polygonscan.com/tx/${txHash}`)
+
+    return {
+        txHash: txHash
+    }
+}
