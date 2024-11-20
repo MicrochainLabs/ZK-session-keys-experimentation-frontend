@@ -29,6 +29,16 @@
   dependencies:
     default-browser-id "3.0.0"
 
+"@aztec/bb.js@0.41.0":
+  version "0.41.0"
+  resolved "https://registry.npmjs.org/@aztec/bb.js/-/bb.js-0.41.0.tgz"
+  integrity sha512-Uqez8YRu+nlPdXfrqeEBF/Mz3OhhK39zXL4gzN/pGhp4FlEkeTLpCx7etHXz6aodyjri6lQCv219tGXG2IAQoA==
+  dependencies:
+    comlink "^4.4.1"
+    commander "^10.0.1"
+    debug "^4.3.4"
+    tslib "^2.4.0"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.22.13":
   version "7.22.13"
   dependencies:
@@ -1674,6 +1684,41 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
+
+"@noir-lang/acvm_js@0.47.0":
+  version "0.47.0"
+  resolved "https://registry.npmjs.org/@noir-lang/acvm_js/-/acvm_js-0.47.0.tgz"
+  integrity sha512-wS1Nx9Pcr2NXwayWz1OzuweiFuE/2nGWkpkxDDoCiY2TU6G8rfuxL2R0Z018n+emDTTxGLAeuf1WdQg5ZVAVFA==
+
+"@noir-lang/backend_barretenberg@^0.31.0":
+  version "0.31.0"
+  resolved "https://registry.npmjs.org/@noir-lang/backend_barretenberg/-/backend_barretenberg-0.31.0.tgz"
+  integrity sha512-bVmv6O2BX3wUyrT5dmY9Z5oABTFYsBBtSMOA5nGalyKsZPaIwwBXpk8rF90IhR6U6jh6uZMOhzpKHbZl4WBXKA==
+  dependencies:
+    "@aztec/bb.js" "0.41.0"
+    "@noir-lang/types" "0.31.0"
+    fflate "^0.8.0"
+
+"@noir-lang/noir_js@^0.31.0":
+  version "0.31.0"
+  resolved "https://registry.npmjs.org/@noir-lang/noir_js/-/noir_js-0.31.0.tgz"
+  integrity sha512-LCpArXg5CpM7IDQMga8mRJCGUobjC3Ckbj6F+aKiJbteVmFJzymlu36sYLOZBE0JDFZ6gu1uPujBt3I6KWfrIw==
+  dependencies:
+    "@noir-lang/acvm_js" "0.47.0"
+    "@noir-lang/noirc_abi" "0.31.0"
+    "@noir-lang/types" "0.31.0"
+
+"@noir-lang/noirc_abi@0.31.0":
+  version "0.31.0"
+  resolved "https://registry.npmjs.org/@noir-lang/noirc_abi/-/noirc_abi-0.31.0.tgz"
+  integrity sha512-Y3O2UjKaM0hvrDwPvEtP9DIbKf8aQqPdk7utrK5hGOBTFIERKIVzibhXoLBGtmDaDsm95aIKQOu3IJqYCQHVbw==
+  dependencies:
+    "@noir-lang/types" "0.31.0"
+
+"@noir-lang/types@0.31.0":
+  version "0.31.0"
+  resolved "https://registry.npmjs.org/@noir-lang/types/-/types-0.31.0.tgz"
+  integrity sha512-KNLJ/KnvLBLo3pVg6IJWIMPRUYs8fkIngIFdtzHaaovctYpAsUKAF4KKh8ITaSEk7hLAIiHjLunSfQ8wSe7HOA==
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -4196,6 +4241,16 @@ combined-stream@^1.0.8:
   dependencies:
     delayed-stream "~1.0.0"
 
+comlink@^4.4.1:
+  version "4.4.2"
+  resolved "https://registry.npmjs.org/comlink/-/comlink-4.4.2.tgz"
+  integrity sha512-OxGdvBmJuNKSCMO4NTl1L47VRp6xn2wG4F/2hYzB6tiCb709otOxtEYCSvK80PtjODfXXZu8ds+Nw5kVCjqd2g==
+
+commander@^10.0.1:
+  version "10.0.1"
+  resolved "https://registry.npmjs.org/commander/-/commander-10.0.1.tgz"
+  integrity sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==
+
 commander@^2.20.0:
   version "2.20.3"
 
@@ -5492,6 +5547,11 @@ ffjavascript@^0.3.0, ffjavascript@0.3.0:
     wasmbuilder "0.0.16"
     wasmcurves "0.2.2"
     web-worker "1.2.0"
+
+fflate@^0.8.0:
+  version "0.8.2"
+  resolved "https://registry.npmjs.org/fflate/-/fflate-0.8.2.tgz"
+  integrity sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==
 
 file-entry-cache@^6.0.1:
   version "6.0.1"

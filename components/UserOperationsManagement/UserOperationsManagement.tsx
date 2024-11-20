@@ -7,6 +7,10 @@ import { useState } from 'react';
 import { deployAccountAndOpenNewZKSessionWithPaymaster } from './DeployNewAccountAndNewZkSession';
 import { sendOneUserOperationWithPaymaster } from './SendOneUserOperation';
 import { sendTwoUserOperationWithPaymaster } from './SendTwoUserOperation';
+import { BarretenbergBackend } from '@noir-lang/backend_barretenberg';
+import { Noir } from '@noir-lang/noir_js';
+import circuit from './circuit.json';
+import { sendUserOperationNoirJS } from './SendUserOperationNoir';
 
 
 interface Props {
@@ -89,6 +93,16 @@ export function UserOperationsManagement(props: Props) {
     setAccountCreationTransaction(zkSessionKey.txHash)
     setIsTransactionLoading(false)
   }  
+
+  async function sendUserOperationWithNoirCircuit() {
+    if (typeof window !== "undefined") {
+      const zkSessionKey = JSON.parse(localStorage.getItem("zkSessionKey") || "");
+      setIsSendEthTransactionLoading(true)
+      const result= await sendUserOperationNoirJS(transferNativeCoinForm.getValues().accountAddress, transferNativeCoinForm.getValues().amount, zkSessionKey.accountIdentifier, zkSessionKey.sessionOwnerPrivateKey, zkSessionKey.sessionAllowedSmartContracts, zkSessionKey.sessionAllowedToTree)
+      setSendEthTransaction(result.txHash)
+      setIsSendEthTransactionLoading(false)
+    }
+  }
 
   async function sendUserOperation() {
     if (typeof window !== "undefined") {
@@ -201,7 +215,7 @@ export function UserOperationsManagement(props: Props) {
 
         <Group justify="center" mt="xl">
             <Button
-            onClick={sendUserOperation}
+            onClick={sendUserOperationWithNoirCircuit}
             >
             Submit
             </Button>

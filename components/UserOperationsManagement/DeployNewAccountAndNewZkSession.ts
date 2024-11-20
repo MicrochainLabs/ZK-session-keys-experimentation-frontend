@@ -31,7 +31,7 @@ export async function deployAccountAndOpenNewZKSessionWithPaymaster(sessionAllow
     }).extend(pimlicoPaymasterActions(ENTRYPOINT_ADDRESS_V07))
 
 
-    const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x7934a31391b517f85bbf3c68fecc96b86d54e7b0"
+    const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x85128e9abd8fd946d028e1ab8318a2e08bb3d9fb"
 
     const ownerPrivateKey = generatePrivateKey()
     const owner = privateKeyToAccount(ownerPrivateKey)
