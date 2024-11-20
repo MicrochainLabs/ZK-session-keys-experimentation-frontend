@@ -186,44 +186,7 @@ export async function sendUserOperationNoirJS(to: string, amount: string, accoun
 
         const backend = new BarretenbergBackend(circuit);
         const noir = new Noir(circuit);
-        /*const input = {
-          account_identifier: "0x8448FF4B2733B52F62D81CA46D64BD16786299CD" ,
-          session_key_identifier: "0x6E7448A6335D5C947953994D071D4DC1F6E5BE96",
-          allowed_smart_contract_tree_root: "0x3EAEC455733FCB842E16346E72602C86E0833338A37BE60DF5D1BE1AB6F6721",
-          allowed_to_tree_root: "0x1DDC75D2360B14E1E30D42D4E0A2F57584B807068BA7A6175B55D5168837622F",
-          op: "0x92C100EF61D009F9838D0220E6C9E4287FB5417D4B65A482BC726517C01F890",
-      
-          dest: ["0x2555E3A97C4AC9705D70B9E5B9B6CC6FE2977A74"],
-          value: ["0x2386F26FC10000"],
-          function_selector: ["0x0"],
-          erc20_transfer_to: ["0x0"],
-      
-          eth_to_siblings: [[
-            "0xFAE129DAFF0FB52FEA5453479DCB5AAFB8FD4424",
-            "0x2035F0AABE2DDD25C8AE5DB994900E2CF147A6AA289E32A33756D8449A4F277D",
-            "0x1069673DCDB12263DF301A6FF584A7EC261A44CB9DC68DF067A4774460B1F1E1",
-            "0x18F43331537EE2AF2E3D758D50F72106467C6EEA50371DD528D57EB2B856D238",
-            "0x7F9D837CB17B0D36320FFE93BA52345F1B728571A568265CAAC97559DBC952A",
-            "0x2B94CF5E8746B3F5C9631F4C5DF32907A699C58C94B2AD4D7B5CEC1639183F55",
-            "0x2DEE93C5A666459646EA7D22CCA9E1BCFED71E6951B953611D11DDA32EA09D78",
-            "0x78295E5A22B84E982CF601EB639597B8B0515A88CB5AC7FA8A4AABE3C87349D",
-            "0x2FA5E5F18F6027A6501BEC864564472A616B2E274A41211A444CBE3A99F3CC61",
-            "0xE884376D0D8FD21ECB780389E941F66E45E7ACCE3E228AB3E2156A614FCD747",
-            "0x1B7201DA72494F1E28717AD1A52EB469F95892F957713533DE6175E5DA190AF2",
-            "0x1F8D8822725E36385200C0B201249819A6E6E1E4650808B5BEBC6BFACE7D7636",
-            "0x2C5D82F66C914BAFB9701589BA8CFCFB6162B0A12ACF88A8D0879A0471B5F85A",
-            "0x14C54148A0940BB820957F5ADF3FA1134EF5C4AAA113F4646458F270E0BFBFD0",
-            "0x190D33B12F986F961E10C0EE44D8B9AF11BE25588CAD89D416118E4BF4EBE80C",
-            "0x22F98AA9CE704152AC17354914AD73ED1167AE6596AF510AA5B3649325E06C92",
-            "0x2A7C7C9B6CE5880B9F6F228D72BF6A575A526F29C66ECCEEF8B753D38BBA7323"
-      
-          ]],
-          eth_to_path_indices: ["0x0"],
-          allowed_smart_contract_call_siblings: [["0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0"]],
-          allowed_smart_contract_call_path_indices: ["0x0"],
-          erc20_to_address_siblings: [["0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0"]],
-          erc20_to_address_path_indices: ["0x0"],
-      };*/
+        
         console.log('logs', 'Generating witness... ⌛');
         const { witness, returnValue } = await noir.execute(circuitInputs);
         console.log("return Value: ", returnValue)
@@ -231,8 +194,6 @@ export async function sendUserOperationNoirJS(to: string, amount: string, accoun
         console.log('logs', 'Generating proof... ✅');
         console.log('Proof: ', proof.proof);
         console.log('publicInputs: ', proof.publicInputs);
-        console.log(hexToBigInt(proof.publicInputs[8] as `0x${string}`))
-        console.log("session tree root: ", hexToBigInt(proof.publicInputs[7] as `0x${string}`))
         /*console.log('logs', 'Verifying proof... ⌛');
         const isValid = await backend.verifyProof(proof)
         // or to cache and use the verification key:
@@ -279,3 +240,42 @@ export async function sendUserOperationNoirJS(to: string, amount: string, accoun
       }
       
 }
+
+/*const input = {
+          account_identifier: "0x8448FF4B2733B52F62D81CA46D64BD16786299CD" ,
+          session_key_identifier: "0x6E7448A6335D5C947953994D071D4DC1F6E5BE96",
+          allowed_smart_contract_tree_root: "0x3EAEC455733FCB842E16346E72602C86E0833338A37BE60DF5D1BE1AB6F6721",
+          allowed_to_tree_root: "0x1DDC75D2360B14E1E30D42D4E0A2F57584B807068BA7A6175B55D5168837622F",
+          op: "0x92C100EF61D009F9838D0220E6C9E4287FB5417D4B65A482BC726517C01F890",
+      
+          dest: ["0x2555E3A97C4AC9705D70B9E5B9B6CC6FE2977A74"],
+          value: ["0x2386F26FC10000"],
+          function_selector: ["0x0"],
+          erc20_transfer_to: ["0x0"],
+      
+          eth_to_siblings: [[
+            "0xFAE129DAFF0FB52FEA5453479DCB5AAFB8FD4424",
+            "0x2035F0AABE2DDD25C8AE5DB994900E2CF147A6AA289E32A33756D8449A4F277D",
+            "0x1069673DCDB12263DF301A6FF584A7EC261A44CB9DC68DF067A4774460B1F1E1",
+            "0x18F43331537EE2AF2E3D758D50F72106467C6EEA50371DD528D57EB2B856D238",
+            "0x7F9D837CB17B0D36320FFE93BA52345F1B728571A568265CAAC97559DBC952A",
+            "0x2B94CF5E8746B3F5C9631F4C5DF32907A699C58C94B2AD4D7B5CEC1639183F55",
+            "0x2DEE93C5A666459646EA7D22CCA9E1BCFED71E6951B953611D11DDA32EA09D78",
+            "0x78295E5A22B84E982CF601EB639597B8B0515A88CB5AC7FA8A4AABE3C87349D",
+            "0x2FA5E5F18F6027A6501BEC864564472A616B2E274A41211A444CBE3A99F3CC61",
+            "0xE884376D0D8FD21ECB780389E941F66E45E7ACCE3E228AB3E2156A614FCD747",
+            "0x1B7201DA72494F1E28717AD1A52EB469F95892F957713533DE6175E5DA190AF2",
+            "0x1F8D8822725E36385200C0B201249819A6E6E1E4650808B5BEBC6BFACE7D7636",
+            "0x2C5D82F66C914BAFB9701589BA8CFCFB6162B0A12ACF88A8D0879A0471B5F85A",
+            "0x14C54148A0940BB820957F5ADF3FA1134EF5C4AAA113F4646458F270E0BFBFD0",
+            "0x190D33B12F986F961E10C0EE44D8B9AF11BE25588CAD89D416118E4BF4EBE80C",
+            "0x22F98AA9CE704152AC17354914AD73ED1167AE6596AF510AA5B3649325E06C92",
+            "0x2A7C7C9B6CE5880B9F6F228D72BF6A575A526F29C66ECCEEF8B753D38BBA7323"
+      
+          ]],
+          eth_to_path_indices: ["0x0"],
+          allowed_smart_contract_call_siblings: [["0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0"]],
+          allowed_smart_contract_call_path_indices: ["0x0"],
+          erc20_to_address_siblings: [["0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0", "0x0", "0x0", "0x0", "0x0","0x0", "0x0", "0x0"]],
+          erc20_to_address_path_indices: ["0x0"],
+      };*/

@@ -234,7 +234,7 @@ export function UserOperationsManagement(props: Props) {
           </Text>
           </Badge>
         </div>)}
-        <Badge
+        {/*<Badge
           size="xl"
           variant="gradient"
           gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
@@ -302,7 +302,7 @@ export function UserOperationsManagement(props: Props) {
             </a>
           </Text>
           </Badge>
-        </div>)}
+        </div>)}*/}
         </div>
       )}
     </Container>
