@@ -4,7 +4,7 @@ import { ENTRYPOINT_ADDRESS_V07,UserOperation,bundlerActions, getAccountNonce, g
 import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico";
 import { Address, Hex, createClient, createPublicClient, encodeFunctionData, http, parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { polygonAmoy } from "viem/chains";
+import { polygon, polygonAmoy } from "viem/chains";
 // @ts-ignore
 import * as snarkjs from 'snarkjs';
 
@@ -14,24 +14,24 @@ export async function sendOneUserOperationWithPaymaster(to: string, amount: stri
     /*********************************** User operation preparation ***************************************** */  
 
     const publicClient = createPublicClient({
-        transport: http("https://rpc-amoy.polygon.technology/"),
-        chain: polygonAmoy,
+        transport: http("https://endpoints.omniatech.io/v1/matic/mainnet/public"),
+        chain: polygon,
     })
     
-    const chain = "polygon-amoy";
+    const chain = "137";
     const apiKey = process.env.NEXT_PUBLIC_PIMLICO_API_KEY;
     const endpointUrl = `https://api.pimlico.io/v2/${chain}/rpc?apikey=${apiKey}`
     
     const bundlerClient = createClient({
         transport: http(endpointUrl),
-        chain: polygonAmoy,
+        chain: polygon,
     })
         .extend(bundlerActions(ENTRYPOINT_ADDRESS_V07))
         .extend(pimlicoBundlerActions(ENTRYPOINT_ADDRESS_V07))
     
     const paymasterClient = createClient({
         transport: http(endpointUrl),
-        chain: polygonAmoy,
+        chain: polygon,
     }).extend(pimlicoPaymasterActions(ENTRYPOINT_ADDRESS_V07))
     
     
@@ -69,7 +69,7 @@ export async function sendOneUserOperationWithPaymaster(to: string, amount: stri
         callData: callData,
         maxFeePerGas: gasPrice.fast.maxFeePerGas,
         maxPriorityFeePerGas: gasPrice.fast.maxPriorityFeePerGas,
-        verificationGasLimit:BigInt(280000),
+        verificationGasLimit:BigInt(300000),
         // dummy signature
         signature:
           "0x150368ca9c94bbc38d4b23acf729d56d506d02c78f0acb2d7a2e17ec1e805eb90c21b496d5454316536ca5b3b8e96fce66828e5ebf997335ef4e4e8a7346c79d1c1be8d8725c70af471c9e8bffce0d172de36b6539481896cd31ddc837ebceca152a02be87fcc24f007b57664dcb084630007a67958d931d4ddd1485875ca69e09c07946a49194771c509a1665607fcb6ffd08de7742acb75d06542d7a363dcf1b43dd9647ad985ea6f3e9e96db31c08df531aa637b034c2f27b5a9ee1549ac8263f853d2ba00b458813b6150243fd72c6daac4341e700a854ba2c085cbd4ebd03b7673ef8b38234a31cc60c8fdfa0709de4802ee9642e3ebc367e8d30e998890c4a80cc0f06049d3dfba1f5047733e6e37de072870b3d949a9a8508c019602f00000000000000000000000022003c09cffb6d4e4964c4d967c078c228bd7cf3000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000414fe02330134e5c8cca47a8ab3ea4b38a5005df04ba243cd6b33d989abca6587233c756f1fb82513f2731d10518f83e79e93147bfa50bd7424ff404a168215a9d1c00000000000000000000000000000000000000000000000000000000000000" as Hex
@@ -89,7 +89,7 @@ export async function sendOneUserOperationWithPaymaster(to: string, amount: stri
 
     let userOpHash = getUserOperationHash({
         userOperation: sponsoredUserOperation,
-        chainId: polygonAmoy.id,
+        chainId: polygon.id,
         entryPoint: ENTRYPOINT_ADDRESS_V07
     })
     let op = BigInt(hexlify(userOpHash))
@@ -182,7 +182,7 @@ export async function sendOneUserOperationWithPaymaster(to: string, amount: stri
       const signature = await signUserOperationHashWithECDSA({
         account: sessionOwner,
         userOperation: sponsoredUserOperation,
-        chainId: polygonAmoy.id,
+        chainId: polygon.id,
         entryPoint: ENTRYPOINT_ADDRESS_V07,
     })
 
@@ -207,7 +207,7 @@ export async function sendOneUserOperationWithPaymaster(to: string, amount: stri
     })
     const txHash = receipt.receipt.transactionHash
 
-    console.log(`UserOperation included: https://amoy.polygonscan.com/tx/${txHash}`)
+    console.log(`UserOperation included: https://polygonscan.com/tx/${txHash}`)
 
     return {
         txHash: txHash

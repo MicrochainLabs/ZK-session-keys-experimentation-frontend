@@ -21,7 +21,7 @@ export function UserOperationsManagement(props: Props) {
 
   const [accountAddress, setAccountAddress] = useState("");
 
-  const [isSessionLoading, setISessionLoading] = useState(true);
+  const [isSessionLoading, setISessionLoading] = useState(false);
   const [isTransactionLoading, setIsTransactionLoading] = useState(false);
   const [isSendEthTransactionLoading, setIsSendEthTransactionLoading] = useState(false);
   const [isSendEthAndErc20Transaction, setIsSendEthAndErc20Transaction] = useState(false);
@@ -154,7 +154,7 @@ export function UserOperationsManagement(props: Props) {
           <Badge color={"green"} variant="light" mt={'xl'} size="35">
           <Text size='xl'>
             Transaction:  
-            <a href={`https://amoy.polygonscan.com/tx/${accountCreationTransaction}`} target="_blank">
+            <a href={`https://polygonscan.com/tx/${accountCreationTransaction}`} target="_blank">
                 {accountCreationTransaction}
             </a>
           </Text>
@@ -163,7 +163,7 @@ export function UserOperationsManagement(props: Props) {
           <Badge color={"cyan"} variant="light" mt={'xl'} size="35">
             <Text size='xl' /*fw={700}*/>
               Account address:
-              <a href={`https://amoy.polygonscan.com/address/${accountAddress}`} target="_blank">
+              <a href={`https://polygonscan.com/address/${accountAddress}`} target="_blank">
                 {accountAddress}
             </a>
             </Text>
@@ -214,7 +214,7 @@ export function UserOperationsManagement(props: Props) {
           <Badge color={"green"} variant="light" mt={'xl'} size="35">
           <Text size='xl'>
             Transaction:  
-            <a href={`https://amoy.polygonscan.com/tx/${sendEthTransaction}`} target="_blank">
+            <a href={`https://polygonscan.com/tx/${sendEthTransaction}`} target="_blank">
                 {sendEthTransaction}
             </a>
           </Text>
@@ -283,7 +283,7 @@ export function UserOperationsManagement(props: Props) {
           <Badge color={"green"} variant="light" mt={'xl'} size="35">
           <Text size='xl'>
             Transaction:  
-            <a href={`https://amoy.polygonscan.com/tx/${sendEthAndErc20Transaction}`} target="_blank">
+            <a href={`https://polygonscan.com/tx/${sendEthAndErc20Transaction}`} target="_blank">
                 {sendEthAndErc20Transaction}
             </a>
           </Text>

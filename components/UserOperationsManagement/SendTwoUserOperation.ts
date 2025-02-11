@@ -3,7 +3,7 @@ import { AddressesIMT, PROOF_SYSTEM_CONSTANTS } from "microch";
 import { ENTRYPOINT_ADDRESS_V07, UserOperation, bundlerActions, getAccountNonce, getUserOperationHash, signUserOperationHashWithECDSA } from "permissionless";
 import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico";
 import { Address, Hex, createClient, createPublicClient, encodeFunctionData, http, parseEther } from "viem";
-import { polygonAmoy } from "viem/chains";
+import { polygon, polygonAmoy } from "viem/chains";
 // @ts-ignore
 import * as snarkjs from 'snarkjs';
 import { privateKeyToAccount } from "viem/accounts";
@@ -13,24 +13,24 @@ export async function sendTwoUserOperationWithPaymaster(to: string, amount: stri
      /*********************************** User operation preparation ***************************************** */  
 
      const publicClient = createPublicClient({
-        transport: http("https://rpc-amoy.polygon.technology/"),
-        chain: polygonAmoy,
+        transport: http("https://endpoints.omniatech.io/v1/matic/mainnet/public"),
+        chain: polygon,
     })
     
-    const chain = "polygon-amoy";
+    const chain = "137";
     const apiKey = process.env.NEXT_PUBLIC_PIMLICO_API_KEY;
     const endpointUrl = `https://api.pimlico.io/v2/${chain}/rpc?apikey=${apiKey}`
     
     const bundlerClient = createClient({
         transport: http(endpointUrl),
-        chain: polygonAmoy,
+        chain: polygon,
     })
         .extend(bundlerActions(ENTRYPOINT_ADDRESS_V07))
         .extend(pimlicoBundlerActions(ENTRYPOINT_ADDRESS_V07))
     
     const paymasterClient = createClient({
         transport: http(endpointUrl),
-        chain: polygonAmoy,
+        chain: polygon,
     }).extend(pimlicoPaymasterActions(ENTRYPOINT_ADDRESS_V07))
     
     
@@ -88,6 +88,7 @@ export async function sendTwoUserOperationWithPaymaster(to: string, amount: stri
         callData: executeBatchCallData,
         maxFeePerGas: gasPrice.fast.maxFeePerGas,
         maxPriorityFeePerGas: gasPrice.fast.maxPriorityFeePerGas,
+        verificationGasLimit:BigInt(350000),
         //verificationGasLimit:BigInt(280000),
         // dummy signature
         signature:
@@ -108,7 +109,7 @@ export async function sendTwoUserOperationWithPaymaster(to: string, amount: stri
 
     let userOpHash = getUserOperationHash({
         userOperation: sponsoredUserOperation,
-        chainId: polygonAmoy.id,
+        chainId: polygon.id,
         entryPoint: ENTRYPOINT_ADDRESS_V07
     })
     let op = BigInt(hexlify(userOpHash))
@@ -209,7 +210,7 @@ export async function sendTwoUserOperationWithPaymaster(to: string, amount: stri
       const signature = await signUserOperationHashWithECDSA({
         account: sessionOwner,
         userOperation: sponsoredUserOperation,
-        chainId: polygonAmoy.id,
+        chainId: polygon.id,
         entryPoint: ENTRYPOINT_ADDRESS_V07,
     })
 
@@ -234,7 +235,7 @@ export async function sendTwoUserOperationWithPaymaster(to: string, amount: stri
     })
     const txHash = receipt.receipt.transactionHash
 
-    console.log(`UserOperation included: https://amoy.polygonscan.com/tx/${txHash}`)
+    console.log(`UserOperation included: https://polygonscan.com/tx/${txHash}`)
 
     return {
         txHash: txHash

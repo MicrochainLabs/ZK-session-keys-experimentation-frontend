@@ -1,6 +1,6 @@
 import { ENTRYPOINT_ADDRESS_V07,UserOperation,bundlerActions, getAccountNonce, getSenderAddress, getUserOperationHash, signUserOperationHashWithECDSA } from "permissionless";
 import { Address, createClient, createPublicClient, encodeFunctionData, Hex, http } from "viem";
-import { polygonAmoy } from "viem/chains";
+import { polygonAmoy, polygon } from "viem/chains";
 import { pimlicoBundlerActions, pimlicoPaymasterActions } from "permissionless/actions/pimlico";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { AddressesIMT, SessionClaimsIMT } from "microch";
@@ -10,30 +10,30 @@ import { AddressesIMT, SessionClaimsIMT } from "microch";
 export async function deployAccountAndOpenNewZKSessionWithPaymaster(sessionAllowedSmartContracts: string[], accountAllowedToAddressesTree: string[]){
 
     const publicClient = createPublicClient({
-        transport: http("https://rpc-amoy.polygon.technology/"),
-        chain: polygonAmoy,
+        transport: http("https://endpoints.omniatech.io/v1/matic/mainnet/public"), // https://rpc.ankr.com/polygon_amoy
+        chain: polygon, // polygonAmoy
     })
     
-    const chain = "polygon-amoy";
+    const chain = "137";//  polygon-amoy
     const apiKey = process.env.NEXT_PUBLIC_PIMLICO_API_KEY;
     const endpointUrl = `https://api.pimlico.io/v2/${chain}/rpc?apikey=${apiKey}`
     
     const bundlerClient = createClient({
         transport: http(endpointUrl),
-        chain: polygonAmoy,
+        chain: polygon, //polygonAmoy
     })
         .extend(bundlerActions(ENTRYPOINT_ADDRESS_V07))
         .extend(pimlicoBundlerActions(ENTRYPOINT_ADDRESS_V07))
     
     const paymasterClient = createClient({
         transport: http(endpointUrl),
-        chain: polygonAmoy,
+        chain: polygon, //polygonAmoy
     }).extend(pimlicoPaymasterActions(ENTRYPOINT_ADDRESS_V07))
 
 
-    const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x7934a31391b517f85bbf3c68fecc96b86d54e7b0"
-
-    const ownerPrivateKey = generatePrivateKey()
+    const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0xCfF4A052fC6722a48b655Fa8e878033E48C05495" //polygon: 0xCfF4A052fC6722a48b655Fa8e878033E48C05495
+    // polygonAmoy: 0x7934a31391b517f85bbf3c68fecc96b86d54e7b0
+    const ownerPrivateKey = "0xb78afb9cb7921d6501c26d1a52b1ebd9733d352027b2bd52ad434622f1f0aaf6"//generatePrivateKey()
     const owner = privateKeyToAccount(ownerPrivateKey)
 
     const factory = SIMPLE_ACCOUNT_FACTORY_ADDRESS
@@ -141,7 +141,7 @@ export async function deployAccountAndOpenNewZKSessionWithPaymaster(sessionAllow
     const signature = await signUserOperationHashWithECDSA({
         account: owner,
         userOperation: sponsoredUserOperation,
-        chainId: polygonAmoy.id,
+        chainId: polygon.id,
         entryPoint: ENTRYPOINT_ADDRESS_V07,
     })
     sponsoredUserOperation.signature = signature
@@ -159,7 +159,7 @@ export async function deployAccountAndOpenNewZKSessionWithPaymaster(sessionAllow
     })
     const txHash = receipt.receipt.transactionHash
     
-    console.log(`UserOperation included: https://amoy.polygonscan.com/tx/${txHash}`)
+    console.log(`UserOperation included: https://polygonscan.com/tx/${txHash}`)
   
 
     return {
