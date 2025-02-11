@@ -33,7 +33,7 @@ export async function deployAccountAndOpenNewZKSessionWithPaymaster(sessionAllow
 
     const SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0xCfF4A052fC6722a48b655Fa8e878033E48C05495" //polygon: 0xCfF4A052fC6722a48b655Fa8e878033E48C05495
     // polygonAmoy: 0x7934a31391b517f85bbf3c68fecc96b86d54e7b0
-    const ownerPrivateKey = "0xb78afb9cb7921d6501c26d1a52b1ebd9733d352027b2bd52ad434622f1f0aaf6"//generatePrivateKey()
+    const ownerPrivateKey = generatePrivateKey()
     const owner = privateKeyToAccount(ownerPrivateKey)
 
     const factory = SIMPLE_ACCOUNT_FACTORY_ADDRESS
